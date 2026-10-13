@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Coloque sua foto na moldura Bora Lula e salve para postar no perfil, feed ou story.">
+<meta property="og:title" content="Moldura Bora Lula">
+<meta property="og:description" content="Coloque sua foto na moldura e salve para postar.">
+<meta property="og:image" content="https://utulio.github.io/bora-lula/og.jpg">
+<meta property="og:url" content="https://utulio.github.io/bora-lula/">
+<meta property="og:type" content="website">
+<link rel="icon" href="frames/post.png">
+<title>Moldura Bora Lula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&display=swap">
+<style>
+/* Layout: one narrow column — header, format switch, canvas stage, controls, save. Campaign red + yellow. */
+:root {
+  --bg: #fbf6f4;
+  --surface: #ffffff;
+  --fg: #2a1013;
+  --muted: #7a5a5d;
+  --line: #ecd9d8;
+  --red: #e2141e;
+  --red-deep: #aa0814;
+  --yellow: #ffce00;
+  --on-red: #ffffff;
+  --stage: #f1e4e2;
+  --display: "Archivo Black", "Arial Black", Impact, sans-serif;
+  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a0d0f; --surface: #26151a; --fg: #f8ecea; --muted: #c4a3a6; --line: #3d242a;
+    --stage: #2f1a1f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1a0d0f; --surface: #26151a; --fg: #f8ecea; --muted: #c4a3a6; --line: #3d242a;
+  --stage: #2f1a1f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.45; }
+.wrap { max-width: 480px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 40px; display: flex; flex-direction: column; gap: 16px; }
+
+header { display: flex; flex-direction: column; gap: 4px; }
+h1 {
+  margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 9vw, 40px); line-height: 1;
+  text-transform: uppercase; letter-spacing: -0.01em; transform: skewX(-8deg); transform-origin: left;
+  color: var(--red); text-wrap: balance;
+}
+h1 span { color: var(--fg); }
+header p { margin: 0; color: var(--muted); }
+
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.seg button {
+  font: 600 15px/1 var(--body); padding: 11px 6px; border: 0; border-radius: 9px; background: transparent; color: var(--fg); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.seg button small { font-weight: 400; font-size: 12px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--red); color: var(--on-red); }
+.seg button[aria-pressed="true"] small { color: rgba(255,255,255,.8); }
+
+.stage { background: var(--stage); border-radius: 14px; padding: 12px; display: flex; justify-content: center; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+canvas { display: block; max-width: 100%; height: auto; max-height: 62vh; border-radius: 6px; touch-action: none; cursor: grab; box-shadow: 0 6px 24px rgba(60, 0, 8, .18); }
+canvas.dragging { cursor: grabbing; }
+.hint { margin: 0; text-align: center; font-size: 14px; color: var(--muted); }
+
+.controls { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn {
+  font: 700 16px/1 var(--body); padding: 14px 18px; border-radius: 12px; border: 2px solid var(--red); background: var(--surface); color: var(--red);
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1 1 auto;
+}
+.btn.primary { background: var(--red); color: var(--on-red); border-color: var(--red); font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; font-size: 18px; padding: 16px 18px; }
+.btn.primary:disabled { opacity: .45; cursor: not-allowed; }
+.btn:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+#file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.zoom { display: flex; align-items: center; gap: 10px; }
+.zoom label { font-weight: 600; font-size: 14px; color: var(--muted); min-width: 44px; }
+.zoom input { flex: 1; accent-color: var(--red); min-width: 0; }
+
+.status { min-height: 1.4em; margin: 0; font-size: 14px; text-align: center; color: var(--muted); }
+.status.ok { color: var(--fg); font-weight: 600; }
+
+.result { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.result img { max-width: 100%; max-height: 60vh; border-radius: 6px; }
+.result p { margin: 0; font-size: 14px; color: var(--muted); text-align: center; }
+
+footer { font-size: 13px; color: var(--muted); text-align: center; display: flex; flex-direction: column; gap: 4px; }
+footer p { margin: 0; }
+footer a { color: var(--red); }
+@media (prefers-reduced-motion: no-preference) { .btn, .seg button { transition: background .15s, color .15s; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Bora <span>Lula</span></h1>
+    <p>Coloque sua foto na moldura e salve para postar.</p>
+  </header>
+
+  <div class="seg" role="group" aria-label="Formato">
+    <button type="button" id="fmt-perfil" data-fmt="perfil" aria-pressed="false">Perfil<small>círculo</small></button>
+    <button type="button" id="fmt-post" data-fmt="post" aria-pressed="true">Post<small>1080×1080</small></button>
+    <button type="button" id="fmt-story" data-fmt="story" aria-pressed="false">Story<small>1080×1920</small></button>
+  </div>
+
+  <div class="stage"><canvas id="cv" aria-label="Prévia da foto com a moldura"></canvas></div>
+  <p class="hint" id="hint">Exemplo. Escolha sua foto para começar.</p>
+
+  <div class="controls">
+    <div class="row">
+      <label class="btn" for="file" id="pick">Escolher foto</label>
+      <input type="file" id="file" accept="image/*">
+      <button type="button" class="btn" id="center" hidden>Centralizar</button>
+    </div>
+    <div class="zoom" id="zoomRow" hidden>
+      <label for="zoom">Zoom</label>
+      <input type="range" id="zoom" min="1" max="4" step="0.01" value="1">
+    </div>
+    <button type="button" class="btn primary" id="save" disabled>Salvar imagem</button>
+    <button type="button" class="btn" id="share" hidden disabled>Compartilhar</button>
+    <p class="status" id="status" role="status"></p>
+  </div>
+
+  <div class="result" id="result" hidden>
+    <img id="resultImg" alt="Sua foto com a moldura Bora Lula">
+    <p>Toque e segure na imagem para salvar no celular.</p>
+  </div>
+
+  <footer>
+    <p>A foto fica só no seu aparelho. Nada é enviado.</p>
+    <p>Elaboração: <b>Coletivo Mobiliza DF</b> · Desenvolvimento: Marco Túlio</p>
+    <p>Contato: <a href="https://www.instagram.com/coletivomobilizadf/" target="_blank" rel="noopener">Instagram @coletivomobilizadf</a> · <a href="mailto:coletivomobilizacaopopular@gmail.com">coletivomobilizacaopopular@gmail.com</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const SIZES = { perfil: [1080, 1080], post: [1080, 1080], story: [1080, 1920] };
+  const frames = {};
+  const state = { fmt: "post", img: null, zoom: 1, ox: 0, oy: 0 };
+  const cv = document.getElementById("cv");
+  const ctx = cv.getContext("2d");
+  const $ = (id) => document.getElementById(id);
+
+  for (const k of Object.keys(SIZES)) {
+    const im = new Image();
+    im.onload = draw;
+    im.src = "frames/" + k + ".png";
+    frames[k] = im;
+  }
+
+  function geom() {
+    const [W, H] = SIZES[state.fmt];
+    const im = state.img;
+    const base = Math.max(W / im.naturalWidth, H / im.naturalHeight) * state.zoom;
+    const dw = im.naturalWidth * base, dh = im.naturalHeight * base;
+    const mx = (dw - W) / 2, my = (dh - H) / 2;
+    state.ox = Math.max(-mx, Math.min(mx, state.ox));
+    state.oy = Math.max(-my, Math.min(my, state.oy));
+    return { W, H, dw, dh, x: (W - dw) / 2 + state.ox, y: (H - dh) / 2 + state.oy };
+  }
+
+  function drawPlaceholder(W, H) {
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, "#9aa9b8"); g.addColorStop(1, "#5d6d7e");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,255,255,.28)";
+    const cx = W / 2, cy = state.fmt === "story" ? H * 0.42 : H * 0.42;
+    ctx.beginPath(); ctx.arc(cx, cy - 70, 120, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx, cy + 230, 250, 170, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.font = "48px 'Archivo Black', 'Arial Black', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("SUA FOTO AQUI", cx, cy - 260);
+  }
+
+  function draw() {
+    const [W, H] = SIZES[state.fmt];
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    ctx.clearRect(0, 0, W, H);
+    if (state.img) {
+      const g = geom();
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(state.img, g.x, g.y, g.dw, g.dh);
+    } else {
+      drawPlaceholder(W, H);
+    }
+    const fr = frames[state.fmt];
+    if (fr.complete && fr.naturalWidth) ctx.drawImage(fr, 0, 0, W, H);
+  }
+
+  function setFmt(f) {
+    state.fmt = f; state.ox = 0; state.oy = 0;
+    document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.fmt === f)));
+    $("result").hidden = true;
+    setStatus("");
+    draw();
+  }
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => setFmt(b.dataset.fmt)));
+
+  function setStatus(t, ok) { const s = $("status"); s.textContent = t; s.className = "status" + (ok ? " ok" : ""); }
+
+  $("file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    const im = new Image();
+    im.onload = () => {
+      state.img = im; state.zoom = 1; state.ox = 0; state.oy = 0;
+      $("zoom").value = "1";
+      $("zoomRow").hidden = false; $("center").hidden = false;
+      $("save").disabled = false;
+      $("share").disabled = false;
+      $("pick").textContent = "Trocar foto";
+      $("hint").textContent = "Arraste a foto para ajustar. Use o zoom ou dois dedos para aproximar.";
+      $("result").hidden = true;
+      setStatus("");
+      draw();
+    };
+    im.onerror = () => setStatus("Não deu para abrir essa imagem. Tente uma foto em JPG ou PNG.");
+    im.src = url;
+    e.target.value = "";
+  });
+
+  $("zoom").addEventListener("input", (e) => { state.zoom = parseFloat(e.target.value); draw(); });
+  $("center").addEventListener("click", () => { state.ox = 0; state.oy = 0; draw(); });
+
+  // drag + pinch
+  const pts = new Map();
+  let pinch0 = null;
+  const scaleK = () => cv.width / cv.getBoundingClientRect().width;
+  cv.addEventListener("pointerdown", (e) => {
+    if (!state.img) return;
+    cv.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    cv.classList.add("dragging");
+    if (pts.size === 2) {
+      const [a, b] = [...pts.values()];
+      pinch0 = { d: Math.hypot(a.x - b.x, a.y - b.y), z: state.zoom };
+    }
+  });
+  cv.addEventListener("pointermove", (e) => {
+    if (!pts.has(e.pointerId)) return;
+    const prev = pts.get(e.pointerId);
+    const cur = { x: e.clientX, y: e.clientY };
+    pts.set(e.pointerId, cur);
+    if (pts.size === 1) {
+      const k = scaleK();
+      state.ox += (cur.x - prev.x) * k;
+      state.oy += (cur.y - prev.y) * k;
+    } else if (pts.size === 2 && pinch0) {
+      const [a, b] = [...pts.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      state.zoom = Math.max(1, Math.min(4, pinch0.z * d / pinch0.d));
+      $("zoom").value = String(state.zoom);
+    }
+    draw();
+  });
+  const up = (e) => {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinch0 = null;
+    if (!pts.size) cv.classList.remove("dragging");
+  };
+  cv.addEventListener("pointerup", up);
+  cv.addEventListener("pointercancel", up);
+  cv.addEventListener("wheel", (e) => {
+    if (!state.img) return;
+    e.preventDefault();
+    state.zoom = Math.max(1, Math.min(4, state.zoom * (e.deltaY < 0 ? 1.06 : 0.94)));
+    $("zoom").value = String(state.zoom);
+    draw();
+  }, { passive: false });
+
+  function showResult(blob) {
+    const img = $("resultImg");
+    try { if (img.src) URL.revokeObjectURL(img.src); } catch (_) {}
+    img.src = URL.createObjectURL(blob);
+    $("result").hidden = false;
+    $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function makeBlob() {
+    return new Promise((res) => { draw(); cv.toBlob((b) => res(b), "image/jpeg", 0.93); });
+  }
+  function fileName() { return "bora-lula-" + state.fmt + ".jpg"; }
+
+  $("save").addEventListener("click", async () => {
+    if (!state.img) return;
+    const blob = await makeBlob();
+    if (!blob) { setStatus("Não deu para gerar a imagem. Tente de novo."); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = fileName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    showResult(blob);
+    setStatus("Imagem gerada. Se o download não começar, toque e segure na imagem abaixo.", true);
+  });
+
+  const canShareFiles = (() => {
+    try { return !!(navigator.canShare && navigator.canShare({ files: [new File([""], "t.jpg", { type: "image/jpeg" })] })); }
+    catch (_) { return false; }
+  })();
+  if (canShareFiles) $("share").hidden = false;
+  $("share").addEventListener("click", async () => {
+    if (!state.img) return;
+    const blob = await makeBlob();
+    if (!blob) return;
+    const file = new File([blob], fileName(), { type: "image/jpeg" });
+    try { await navigator.share({ files: [file], title: "Bora Lula" }); }
+    catch (err) { if (err && err.name !== "AbortError") setStatus("Não deu para compartilhar. Use Salvar imagem."); }
+  });
+
+  draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
+</body>
+</html>
