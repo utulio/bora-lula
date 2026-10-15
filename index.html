@@ -79,7 +79,7 @@ canvas.dragging { cursor: grabbing; }
 .btn.primary { background: var(--red); color: var(--on-red); border-color: var(--red); font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; font-size: 18px; padding: 16px 18px; }
 .btn.primary:disabled { opacity: .45; cursor: not-allowed; }
 .btn:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
-#file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+#file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; clip: rect(0 0 0 0); }
 
 .zoom { display: flex; align-items: center; gap: 10px; }
 .zoom label { font-weight: 600; font-size: 14px; color: var(--muted); min-width: 44px; }
@@ -207,13 +207,80 @@ footer a { color: var(--red); }
 
   function setStatus(t, ok) { const s = $("status"); s.textContent = t; s.className = "status" + (ok ? " ok" : ""); }
 
-  $("file").addEventListener("change", (e) => {
-    const f = e.target.files && e.target.files[0];
-    if (!f) return;
-    const url = URL.createObjectURL(f);
-    const im = new Image();
-    im.onload = () => {
-      state.img = im; state.zoom = 1; state.ox = 0; state.oy = 0;
+  // ---- carregamento robusto da foto ----
+  const MAX_SIDE = 2400;          // reduz fotos enormes para não estourar a memória do celular
+  let loadToken = 0;
+  let heicLib = null;
+
+  function isHeic(f) {
+    const n = (f.name || "").toLowerCase();
+    return /image\/hei[cf]/.test(f.type) || n.endsWith(".heic") || n.endsWith(".heif");
+  }
+
+  function loadHeicLib() {
+    if (heicLib) return heicLib;
+    heicLib = new Promise((res, rej) => {
+      const sc = document.createElement("script");
+      sc.src = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+      sc.onload = () => window.heic2any ? res(window.heic2any) : rej(new Error("heic"));
+      sc.onerror = () => { heicLib = null; rej(new Error("heic")); };
+      document.head.appendChild(sc);
+    });
+    return heicLib;
+  }
+
+  function decodeWithImg(blob) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(blob);
+      const im = new Image();
+      im.decoding = "async";
+      im.onload = () => { URL.revokeObjectURL(url); res(im); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("decode")); };
+      im.src = url;
+    });
+  }
+
+  async function decode(blob) {
+    if (window.createImageBitmap) {
+      try { return await createImageBitmap(blob, { imageOrientation: "from-image" }); } catch (_) {}
+    }
+    return decodeWithImg(blob);
+  }
+
+  function shrink(src) {
+    const w = src.naturalWidth || src.width, h = src.naturalHeight || src.height;
+    const k = Math.min(1, MAX_SIDE / Math.max(w, h));
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(w * k));
+    c.height = Math.max(1, Math.round(h * k));
+    const g = c.getContext("2d");
+    g.imageSmoothingQuality = "high";
+    g.drawImage(src, 0, 0, c.width, c.height);
+    if (src.close) src.close();
+    c.naturalWidth = c.width; c.naturalHeight = c.height;
+    return c;
+  }
+
+  async function loadPhoto(f) {
+    const my = ++loadToken;
+    setStatus("Carregando foto…");
+    $("pick").setAttribute("aria-busy", "true");
+    try {
+      let blob = f;
+      let decoded;
+      try {
+        decoded = await decode(blob);
+      } catch (err) {
+        if (!isHeic(f)) throw err;
+        setStatus("Convertendo foto do iPhone…");
+        const conv = await loadHeicLib();
+        blob = await conv({ blob: f, toType: "image/jpeg", quality: 0.92 });
+        if (Array.isArray(blob)) blob = blob[0];
+        decoded = await decode(blob);
+      }
+      if (my !== loadToken) return;          // o usuário já escolheu outra foto
+      const img = shrink(decoded);
+      state.img = img; state.zoom = 1; state.ox = 0; state.oy = 0;
       $("zoom").value = "1";
       $("zoomRow").hidden = false; $("center").hidden = false;
       $("save").disabled = false;
@@ -223,10 +290,18 @@ footer a { color: var(--red); }
       $("result").hidden = true;
       setStatus("");
       draw();
-    };
-    im.onerror = () => setStatus("Não deu para abrir essa imagem. Tente uma foto em JPG ou PNG.");
-    im.src = url;
-    e.target.value = "";
+    } catch (_) {
+      if (my !== loadToken) return;
+      setStatus("Não deu para abrir essa foto. Tente outra, ou tire um print dela e escolha o print.");
+    } finally {
+      if (my === loadToken) $("pick").removeAttribute("aria-busy");
+    }
+  }
+
+  $("file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";                     // permite escolher a mesma foto de novo
+    if (f) loadPhoto(f);
   });
 
   $("zoom").addEventListener("input", (e) => { state.zoom = parseFloat(e.target.value); draw(); });
