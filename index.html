@@ -152,7 +152,7 @@ footer a { color: var(--red); }
   for (const k of Object.keys(SIZES)) {
     const im = new Image();
     im.onload = draw;
-    im.src = "frames/" + k + ".png";
+    im.src = "frames/" + k + ".png?v=2";
     frames[k] = im;
   }
 
