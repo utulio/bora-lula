@@ -9,7 +9,7 @@
 <meta property="og:image" content="https://utulio.github.io/bora-lula/og.jpg">
 <meta property="og:url" content="https://utulio.github.io/bora-lula/">
 <meta property="og:type" content="website">
-<link rel="icon" href="frames/post.png">
+<link rel="icon" href="icone.png">
 <title>O verde e amarelo é de todos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -174,7 +174,7 @@ footer a { color: var(--red); }
   const HAND = {"post": {"x": 684, "y": 634, "w": 378, "h": 490}, "story": {"x": 615, "y": 1392, "w": 447, "h": 580}, "perfil": {"x": 505, "y": 700, "w": 347, "h": 450}};
   const handImg = new Image(), handHl = new Image();
   handImg.onload = draw; handHl.onload = draw;
-  handImg.src = "frames/mao.png?v=15"; handHl.src = "frames/mao-brilho.png?v=8";
+  handImg.src = "frames/mao.webp?v=16";
   let handColor = "#f7a632";
   const tint = document.createElement("canvas");
   function tintedHand(w, h) {
@@ -196,11 +196,15 @@ footer a { color: var(--red); }
   const ctx = cv.getContext("2d");
   const $ = (id) => document.getElementById(id);
 
-  for (const k of Object.keys(SIZES)) {
-    const im = new Image();
-    im.onload = draw;
-    im.src = "frames/" + k + ".png?v=15";
-    frames[k] = im;
+  // load only the frame for the chosen format (keeps each visit light)
+  function ensureFrame(k) {
+    if (!frames[k]) {
+      const im = new Image();
+      im.onload = draw;
+      im.src = "frames/" + k + ".webp?v=16";
+      frames[k] = im;
+    }
+    return frames[k];
   }
 
   function geom() {
@@ -245,7 +249,7 @@ footer a { color: var(--red); }
     } else {
       drawPlaceholder(W, H);
     }
-    const fr = frames[state.fmt];
+    const fr = ensureFrame(state.fmt);
     if (fr.complete && fr.naturalWidth) ctx.drawImage(fr, 0, 0, W, H);
     if (handImg.complete && handImg.naturalWidth) {
       const L = HAND[state.fmt];
