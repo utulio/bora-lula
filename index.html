@@ -17,28 +17,28 @@
 <style>
 /* Layout: one narrow column — header, format switch, canvas stage, controls, save. Campaign red + yellow. */
 :root {
-  --bg: #fbf6f4;
+  --bg: #f6f8f1;
   --surface: #ffffff;
-  --fg: #2a1013;
-  --muted: #7a5a5d;
-  --line: #ecd9d8;
-  --red: #e2141e;
-  --red-deep: #aa0814;
+  --fg: #13241a;
+  --muted: #5b6e60;
+  --line: #dbe6d3;
+  --red: #0a8a3e;
+  --red-deep: #06642c;
   --yellow: #ffce00;
   --on-red: #ffffff;
-  --stage: #f1e4e2;
+  --stage: #e7eee0;
   --display: "Archivo Black", "Arial Black", Impact, sans-serif;
   --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1a0d0f; --surface: #26151a; --fg: #f8ecea; --muted: #c4a3a6; --line: #3d242a;
-    --stage: #2f1a1f; color-scheme: dark;
+    --bg: #0d1a12; --surface: #15261b; --fg: #eaf5ec; --muted: #a3c4ac; --line: #24402d;
+    --stage: #1a2f21; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1a0d0f; --surface: #26151a; --fg: #f8ecea; --muted: #c4a3a6; --line: #3d242a;
-  --stage: #2f1a1f; color-scheme: dark;
+  --bg: #0d1a12; --surface: #15261b; --fg: #eaf5ec; --muted: #a3c4ac; --line: #24402d;
+  --stage: #1a2f21; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -66,7 +66,7 @@ header p { margin: 0; color: var(--muted); }
 .stage { background: var(--stage); border-radius: 14px; padding: 12px; display: flex; justify-content: center; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
-canvas { display: block; max-width: 100%; height: auto; max-height: 62vh; border-radius: 6px; touch-action: none; cursor: grab; box-shadow: 0 6px 24px rgba(60, 0, 8, .18); }
+canvas { display: block; max-width: 100%; height: auto; max-height: 62vh; border-radius: 6px; touch-action: none; cursor: grab; box-shadow: 0 6px 24px rgba(0, 40, 16, .18); }
 canvas.dragging { cursor: grabbing; }
 .hint { margin: 0; text-align: center; font-size: 14px; color: var(--muted); }
 
@@ -85,6 +85,14 @@ canvas.dragging { cursor: grabbing; }
 .zoom label { font-weight: 600; font-size: 14px; color: var(--muted); min-width: 44px; }
 .zoom input { flex: 1; accent-color: var(--red); min-width: 0; }
 
+.cores { display: flex; flex-direction: column; gap: 8px; }
+.cores > span { font-weight: 600; font-size: 14px; color: var(--muted); }
+.sw { display: flex; flex-wrap: wrap; gap: 8px; }
+.sw button, .sw label { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; position: relative; }
+.sw button[aria-pressed="true"] { border-color: var(--fg); box-shadow: 0 0 0 3px var(--yellow); }
+.sw button:focus-visible, .sw label:focus-within { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.sw label { background: conic-gradient(#e2141e, #ffd21f, #2ba84a, #1e5bd8, #b03ad8, #e2141e); }
+.sw label input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 .status { min-height: 1.4em; margin: 0; font-size: 14px; text-align: center; color: var(--muted); }
 .status.ok { color: var(--fg); font-weight: 600; }
 
@@ -115,6 +123,23 @@ footer a { color: var(--red); }
   <div class="stage"><canvas id="cv" aria-label="Prévia da foto com a moldura"></canvas></div>
   <p class="hint" id="hint">Exemplo. Escolha sua foto para começar.</p>
 
+  <div class="cores">
+    <span id="coresLbl">Cor da mão</span>
+    <div class="sw" role="group" aria-labelledby="coresLbl" id="sw">
+      <button type="button" data-c="#f7a632" aria-label="Laranja" aria-pressed="true" style="background:#f7a632"></button>
+      <button type="button" data-c="#f1c9a5" aria-label="Pele clara" aria-pressed="false" style="background:#f1c9a5"></button>
+      <button type="button" data-c="#d9a47e" aria-label="Pele média" aria-pressed="false" style="background:#d9a47e"></button>
+      <button type="button" data-c="#b07a52" aria-label="Pele morena" aria-pressed="false" style="background:#b07a52"></button>
+      <button type="button" data-c="#7a4b2e" aria-label="Pele negra" aria-pressed="false" style="background:#7a4b2e"></button>
+      <button type="button" data-c="#4a2c1c" aria-label="Pele retinta" aria-pressed="false" style="background:#4a2c1c"></button>
+      <button type="button" data-c="#ffd21f" aria-label="Amarelo" aria-pressed="false" style="background:#ffd21f"></button>
+      <button type="button" data-c="#2ba84a" aria-label="Verde" aria-pressed="false" style="background:#2ba84a"></button>
+      <button type="button" data-c="#e2141e" aria-label="Vermelho" aria-pressed="false" style="background:#e2141e"></button>
+      <button type="button" data-c="#ffffff" aria-label="Branco" aria-pressed="false" style="background:#ffffff"></button>
+      <label title="Outra cor"><input type="color" id="corLivre" value="#f7a632" aria-label="Escolher outra cor"></label>
+    </div>
+  </div>
+
   <div class="controls">
     <div class="row">
       <label class="btn" for="file" id="pick">Escolher foto</label>
@@ -144,6 +169,26 @@ footer a { color: var(--red); }
 (function () {
   const SIZES = { perfil: [1080, 1080], post: [1080, 1080], story: [1080, 1920] };
   const frames = {};
+  const HAND = {"post": {"x": 767, "y": 750, "w": 273, "h": 360}, "story": {"x": 721, "y": 1534, "w": 319, "h": 420}, "perfil": {"x": 798, "y": 768, "w": 258, "h": 340}};
+  const handImg = new Image(), handHl = new Image();
+  handImg.onload = draw; handHl.onload = draw;
+  handImg.src = "frames/mao.png?v=3"; handHl.src = "frames/mao-brilho.png?v=3";
+  let handColor = "#f7a632";
+  const tint = document.createElement("canvas");
+  function tintedHand(w, h) {
+    tint.width = w; tint.height = h;
+    const t = tint.getContext("2d");
+    t.clearRect(0, 0, w, h);
+    t.globalCompositeOperation = "source-over";
+    t.drawImage(handImg, 0, 0, w, h);
+    t.globalCompositeOperation = "multiply";
+    t.fillStyle = handColor; t.fillRect(0, 0, w, h);
+    t.globalCompositeOperation = "destination-in";
+    t.drawImage(handImg, 0, 0, w, h);
+    t.globalCompositeOperation = "source-over";
+    if (handHl.complete && handHl.naturalWidth) t.drawImage(handHl, 0, 0, w, h);
+    return tint;
+  }
   const state = { fmt: "post", img: null, zoom: 1, ox: 0, oy: 0 };
   const cv = document.getElementById("cv");
   const ctx = cv.getContext("2d");
@@ -152,7 +197,7 @@ footer a { color: var(--red); }
   for (const k of Object.keys(SIZES)) {
     const im = new Image();
     im.onload = draw;
-    im.src = "frames/" + k + ".png?v=2";
+    im.src = "frames/" + k + ".png?v=3";
     frames[k] = im;
   }
 
@@ -194,6 +239,14 @@ footer a { color: var(--red); }
     }
     const fr = frames[state.fmt];
     if (fr.complete && fr.naturalWidth) ctx.drawImage(fr, 0, 0, W, H);
+    if (handImg.complete && handImg.naturalWidth) {
+      const L = HAND[state.fmt];
+      const hc = tintedHand(L.w, L.h);
+      ctx.save();
+      ctx.shadowColor = "rgba(0, 25, 8, .35)"; ctx.shadowBlur = 18; ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 9;
+      ctx.drawImage(hc, L.x, L.y);
+      ctx.restore();
+    }
   }
 
   function setFmt(f) {
@@ -392,6 +445,15 @@ footer a { color: var(--red); }
     try { await navigator.share({ files: [file], title: "Bora Lula" }); }
     catch (err) { if (err && err.name !== "AbortError") setStatus("Não deu para compartilhar. Use Salvar imagem."); }
   });
+
+  function setColor(c, btn) {
+    handColor = c;
+    document.querySelectorAll("#sw button").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+    $("result").hidden = true;
+    draw();
+  }
+  document.querySelectorAll("#sw button").forEach(b => b.addEventListener("click", () => setColor(b.dataset.c, b)));
+  $("corLivre").addEventListener("input", (e) => setColor(e.target.value, null));
 
   draw();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
