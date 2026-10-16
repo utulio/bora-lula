@@ -171,10 +171,10 @@ footer a { color: var(--red); }
 (function () {
   const SIZES = { perfil: [1080, 1080], post: [1080, 1080], story: [1080, 1920] };
   const frames = {};
-  const HAND = {"post": {"x": 765, "y": 734, "w": 293, "h": 380}, "story": {"x": 711, "y": 1510, "w": 347, "h": 450}, "perfil": {"x": 802, "y": 760, "w": 270, "h": 350}};
+  const HAND = {"post": {"x": 765, "y": 734, "w": 293, "h": 380}, "story": {"x": 711, "y": 1510, "w": 347, "h": 450}, "perfil": {"x": 610, "y": 762, "w": 254, "h": 330}};
   const handImg = new Image(), handHl = new Image();
   handImg.onload = draw; handHl.onload = draw;
-  handImg.src = "frames/mao.png?v=10"; handHl.src = "frames/mao-brilho.png?v=8";
+  handImg.src = "frames/mao.png?v=11"; handHl.src = "frames/mao-brilho.png?v=8";
   let handColor = "#f7a632";
   const tint = document.createElement("canvas");
   function tintedHand(w, h) {
@@ -199,7 +199,7 @@ footer a { color: var(--red); }
   for (const k of Object.keys(SIZES)) {
     const im = new Image();
     im.onload = draw;
-    im.src = "frames/" + k + ".png?v=10";
+    im.src = "frames/" + k + ".png?v=11";
     frames[k] = im;
   }
 
