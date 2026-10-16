@@ -117,8 +117,8 @@ footer a { color: var(--red); }
   </header>
 
   <div class="seg" role="group" aria-label="Formato">
-    <button type="button" id="fmt-perfil" data-fmt="perfil" aria-pressed="false">Perfil<small>círculo</small></button>
-    <button type="button" id="fmt-post" data-fmt="post" aria-pressed="true">Post<small>1080×1080</small></button>
+    <button type="button" id="fmt-perfil" data-fmt="perfil" aria-pressed="true">Perfil<small>círculo</small></button>
+    <button type="button" id="fmt-post" data-fmt="post" aria-pressed="false">Post<small>1080×1080</small></button>
     <button type="button" id="fmt-story" data-fmt="story" aria-pressed="false">Story<small>1080×1920</small></button>
   </div>
 
@@ -174,7 +174,7 @@ footer a { color: var(--red); }
   const HAND = {"post": {"x": 765, "y": 734, "w": 293, "h": 380}, "story": {"x": 711, "y": 1510, "w": 347, "h": 450}, "perfil": {"x": 610, "y": 762, "w": 254, "h": 330}};
   const handImg = new Image(), handHl = new Image();
   handImg.onload = draw; handHl.onload = draw;
-  handImg.src = "frames/mao.png?v=11"; handHl.src = "frames/mao-brilho.png?v=8";
+  handImg.src = "frames/mao.png?v=12"; handHl.src = "frames/mao-brilho.png?v=8";
   let handColor = "#f7a632";
   const tint = document.createElement("canvas");
   function tintedHand(w, h) {
@@ -191,7 +191,7 @@ footer a { color: var(--red); }
     if (handHl.complete && handHl.naturalWidth) t.drawImage(handHl, 0, 0, w, h);
     return tint;
   }
-  const state = { fmt: "post", img: null, zoom: 1, ox: 0, oy: 0 };
+  const state = { fmt: "perfil", img: null, zoom: 1, ox: 0, oy: 0 };
   const cv = document.getElementById("cv");
   const ctx = cv.getContext("2d");
   const $ = (id) => document.getElementById(id);
@@ -199,7 +199,7 @@ footer a { color: var(--red); }
   for (const k of Object.keys(SIZES)) {
     const im = new Image();
     im.onload = draw;
-    im.src = "frames/" + k + ".png?v=11";
+    im.src = "frames/" + k + ".png?v=12";
     frames[k] = im;
   }
 
