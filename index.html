@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Coloque sua foto na moldura Bora Lula e salve para postar no perfil, feed ou story.">
-<meta property="og:title" content="Moldura Bora Lula">
-<meta property="og:description" content="Coloque sua foto na moldura e salve para postar.">
+<meta name="description" content="O verde e amarelo é de todos os brasileiros. Coloque sua foto na moldura e salve para postar no perfil, feed ou story.">
+<meta property="og:title" content="O verde e amarelo é de todos os brasileiros">
+<meta property="og:description" content="Coloque sua foto na moldura verde e amarela e poste.">
 <meta property="og:image" content="https://utulio.github.io/bora-lula/og.jpg">
 <meta property="og:url" content="https://utulio.github.io/bora-lula/">
 <meta property="og:type" content="website">
 <link rel="icon" href="frames/post.png">
-<title>Moldura Bora Lula</title>
+<title>O verde e amarelo é de todos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&display=swap">
@@ -47,12 +47,13 @@ body { margin: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: en
 
 header { display: flex; flex-direction: column; gap: 4px; }
 h1 {
-  margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 9vw, 40px); line-height: 1;
+  margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(28px, 8vw, 38px); line-height: 1.05;
   text-transform: uppercase; letter-spacing: -0.01em; transform: skewX(-8deg); transform-origin: left;
   color: var(--red); text-wrap: balance;
 }
 h1 span { color: var(--fg); }
 header p { margin: 0; color: var(--muted); }
+header .lead { color: var(--fg); margin-top: 6px; }
 
 .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
 .seg button {
@@ -110,7 +111,8 @@ footer a { color: var(--red); }
 <body>
 <div class="wrap">
   <header>
-    <h1>Bora <span>Lula</span></h1>
+    <h1>O verde e amarelo <span>é de todos os brasileiros</span></h1>
+    <p class="lead">Nossas cores são de todos os brasileiros que acreditam na democracia, no patriotismo de verdade e na proteção das nossas riquezas naturais.</p>
     <p>Coloque sua foto na moldura e salve para postar.</p>
   </header>
 
