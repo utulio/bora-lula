@@ -171,10 +171,10 @@ footer a { color: var(--red); }
 (function () {
   const SIZES = { perfil: [1080, 1080], post: [1080, 1080], story: [1080, 1920] };
   const frames = {};
-  const HAND = {"post": {"x": 767, "y": 750, "w": 273, "h": 360}, "story": {"x": 721, "y": 1534, "w": 319, "h": 420}, "perfil": {"x": 798, "y": 768, "w": 258, "h": 340}};
+  const HAND = {"post": {"x": 765, "y": 734, "w": 293, "h": 380}, "story": {"x": 711, "y": 1510, "w": 347, "h": 450}, "perfil": {"x": 802, "y": 760, "w": 270, "h": 350}};
   const handImg = new Image(), handHl = new Image();
   handImg.onload = draw; handHl.onload = draw;
-  handImg.src = "frames/mao.png?v=3"; handHl.src = "frames/mao-brilho.png?v=3";
+  handImg.src = "frames/mao.png?v=10"; handHl.src = "frames/mao-brilho.png?v=8";
   let handColor = "#f7a632";
   const tint = document.createElement("canvas");
   function tintedHand(w, h) {
@@ -199,7 +199,7 @@ footer a { color: var(--red); }
   for (const k of Object.keys(SIZES)) {
     const im = new Image();
     im.onload = draw;
-    im.src = "frames/" + k + ".png?v=3";
+    im.src = "frames/" + k + ".png?v=10";
     frames[k] = im;
   }
 
@@ -215,18 +215,24 @@ footer a { color: var(--red); }
   }
 
   function drawPlaceholder(W, H) {
-    const g = ctx.createLinearGradient(0, 0, W, H);
-    g.addColorStop(0, "#9aa9b8"); g.addColorStop(1, "#5d6d7e");
+    // studio backdrop: warm light in the centre fading to green at the edges
+    const R = Math.hypot(W, H) * 0.62;
+    const g = ctx.createRadialGradient(W * 0.48, H * 0.42, 0, W * 0.48, H * 0.42, R);
+    g.addColorStop(0, "#f6f3df");
+    g.addColorStop(0.35, "#e3e8cc");
+    g.addColorStop(0.7, "#9fbf98");
+    g.addColorStop(1, "#4f8a63");
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "rgba(255,255,255,.28)";
-    const cx = W / 2, cy = state.fmt === "story" ? H * 0.42 : H * 0.42;
+    ctx.fillStyle = "rgba(40, 110, 70, .16)";
+    const cx = W / 2, cy = H * 0.42;
     ctx.beginPath(); ctx.arc(cx, cy - 70, 120, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(cx, cy + 230, 250, 170, 0, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.fillStyle = "rgba(30, 95, 60, .55)";
     ctx.font = "48px 'Archivo Black', 'Arial Black', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("SUA FOTO AQUI", cx, cy - 260);
   }
+
 
   function draw() {
     const [W, H] = SIZES[state.fmt];
